@@ -1,0 +1,115 @@
+---
+title: "mcvis simulation V1"
+author: "Kevin Wang"
+date: "15 Dec 2018"
+output:
+  html_document:
+    code_folding: hide
+    fig_height: 8
+    fig_width: 8
+    toc: yes
+    number_sections: true
+    toc_depth: 3
+    toc_float: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+# Summary 
+
+# Load packages
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(mcvis)
+  library(corrplot)
+  library(mvtnorm)
+  library(RColorBrewer)
+})
+
+
+theme_set(theme_bw(18) +
+            theme(legend.position = "bottom"))
+```
+
+# Simulation 1: random normal with built linear term
+
+
+## X1 = X2 + X3
+```{r}
+set.seed(1)
+p = 10
+n = 100
+
+X = matrix(rnorm(n*p), ncol = p)
+X[,1] = X[,2] + X[,3] + rnorm(n, 0, 0.1)
+
+
+ggplot_mcvis(mcvis(X))
+
+corrplot.mixed(cor(X), upper = "square")
+```
+
+## X1 = X2 - X3 
+```{r}
+X = matrix(rnorm(n*p), ncol = p)
+X[,1] = X[,2] - X[,3] + rnorm(n, 0, 0.1)
+
+ggplot_mcvis(mcvis(X))
+
+corrplot.mixed(cor(X), upper = "square")
+```
+
+## X1 = X2 + X3 and X2 = X3 + X4
+
+```{r}
+X = matrix(rnorm(n*p), ncol = p)
+X[,1] = X[,2] + X[,3] + rnorm(n, 0, 0.1)
+X[,2] = X[,3] + X[,4] + rnorm(n, 0, 0.1)
+
+ggplot_mcvis(mcvis(X))
+
+corrplot.mixed(cor(X), upper = "square")
+```
+
+
+
+# Simulation 2: $\rho^{|i - j|}$
+
+
+## Rho = -0.99
+```{r}
+set.seed(1)
+rho = -0.99
+rows = matrix(rep(c(1:p), p), nrow = p, byrow = F)
+cols = t(rows)
+XSigma = rho^abs(rows - cols)
+X = rmvnorm(n = n, mean = rep(0, p), sigma = XSigma)
+mcvis_result = mcvis(X)
+ggplot_mcvis(mcvis_result, type = "max")
+ggplot_mcvis(mcvis_result, type = "first")
+corrplot.mixed(cor(X), upper = "square")
+```
+
+## Rho = 0.99
+```{r}
+set.seed(2)
+rho = 0.99
+rows = matrix(rep(c(1:p), p), nrow = p, byrow = F)
+cols = t(rows)
+XSigma = rho^abs(rows - cols)
+X = rmvnorm(n = n, mean = rep(0, p), sigma = XSigma)
+mcvis_result = mcvis(X)
+ggplot_mcvis(mcvis_result, type = "max")
+ggplot_mcvis(mcvis_result, type = "first")
+corrplot.mixed(cor(X), upper = "square")
+```
+
+
+# session info
+```{r}
+devtools::session_info()
+```
+
