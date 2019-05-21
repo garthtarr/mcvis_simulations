@@ -119,8 +119,11 @@ plotdf_plots = plotdf_nest %>%
 
 purrr::map(
   .x = seq_len(nrow(plotdf_plots)), 
-  .f = ~ ggsave(filename = paste0("figures/Fig1_n=", plotdf_plots$n[.x],
-                                  "_gamma=", plotdf_plots$gamma[.x], ".pdf"))
+  .f = ~ ggsave(plot = plotdf_plots$sim_plot[[.x]], 
+                filename = paste0("figures/Fig1_n=", plotdf_plots$n[.x],
+                                  "_gamma=", plotdf_plots$gamma[.x], ".pdf"),
+                height = 6,
+                width = 8)
 )
 
 # plotdf_unnest = plotdf_nest %>% tidyr::unnest()
