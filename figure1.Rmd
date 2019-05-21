@@ -1,0 +1,93 @@
+---
+title: "Figure 1"
+author: "Kevin Wang"
+date: "21/05/2019"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+
+theme_set(theme_classic(18) +
+            theme(legend.position = "bottom"))
+```
+
+
+
+
+
+```{r}
+sim = function(n, gamma){
+  v1 = vif1 = NULL
+  nExp = 1000
+  p = 4
+  
+  for (l in 1:nExp){
+    w = matrix(rnorm(p*n,10,100),n,p)
+    x = sqrt(1-gamma^2)*w + gamma*w[,p]
+    n1 = as.matrix(rep(1,n))
+    X2 <- x-n1%*%colMeans(x)
+    s <- as.matrix(sqrt(diag(t(X2) %*% X2)))
+    x.norm <- as.matrix(sqrt(diag(t(x) %*% x)))
+    Z <- X2[,1]/s[1,] 
+    
+    for (j in 2:p)   { Z<-as.matrix(cbind(Z,X2[,j]/s[j,])) } ## Standandardisation
+    
+    v<-as.vector(s/x.norm)
+    D<-diag(v)
+    Z1<-Z%*%D
+    v1p=1/eigen(crossprod(Z1,Z1))$values
+    vifp=diag(solve(t(Z1)%*%Z1))
+    vifp=vifp[order(vifp)]
+    
+    v1 <- cbind(v1,v1p)
+    vif1 <- cbind(vif1,vifp)
+  }
+  
+  # result = list(
+  #   v1 = v1, 
+  #   vif1 = vif1
+  # )
+  
+  taudf = t(v1)
+  colnames(taudf) = paste0("tau", 1:p)
+  rownames(taudf) = paste0("exp", 1:nExp)
+  
+  vifdf = t(vif1)
+  colnames(vifdf) = paste0("vif", 1:p)
+  rownames(vifdf) = paste0("exp", 1:nExp)
+  
+  taudf_long = reshape2::melt(taudf, varnames = c("exp_num", "tau_type"), value.name = "tau_value") %>% tibble::as_tibble()
+  vifdf_long = reshape2::melt(vifdf, varnames = c("exp_num", "vif_type"), value.name = "vif_value") %>% tibble::as_tibble()
+  
+  taudf_nest = taudf_long %>% group_by(exp_num) %>% tidyr::nest()
+  vifdf_nest = vifdf_long %>% group_by(exp_num) %>% tidyr::nest()
+  
+  result = inner_join(taudf_nest, vifdf_nest, by = "exp_num") %>% 
+    unnest(data.x, .drop = FALSE) %>% 
+    unnest(data.y, .drop = FALSE)
+
+  return(result)
+}
+```
+
+
+# Single simulation
+```{r}
+set.seed(1)
+tmp = sim(n = 200, gamma = 0.5)
+
+tmp %>% 
+  ggplot(aes(x = tau_value, 
+             y = vif_value)) +
+  geom_point(shape = 1) +
+  facet_grid(vif_type ~ tau_type, scales = "free")
+
+```
+
+
+# Multiple simulations
+```{r}
+
+```
+

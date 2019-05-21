@@ -47,9 +47,11 @@ X = matrix(rnorm(n*p), ncol = p)
 X[,1] = X[,2] + X[,3] + rnorm(n, 0, 0.1)
 
 
-ggplot_mcvis(mcvis(X))
-
+mcvis_result = mcvis(X)
+ggplot_mcvis(mcvis_result)
 corrplot.mixed(cor(X), upper = "square")
+d3heatmap::d3heatmap(mcvis_result$g, Rowv = F)
+corrplot.mixed(1 - mcvis_result$g, upper = "square")
 ```
 
 ## X1 = X2 - X3 
@@ -57,9 +59,10 @@ corrplot.mixed(cor(X), upper = "square")
 X = matrix(rnorm(n*p), ncol = p)
 X[,1] = X[,2] - X[,3] + rnorm(n, 0, 0.1)
 
-ggplot_mcvis(mcvis(X))
-
+mcvis_result = mcvis(X)
+ggplot_mcvis(mcvis_result)
 corrplot.mixed(cor(X), upper = "square")
+corrplot.mixed(1 - mcvis_result$g, upper = "square")
 ```
 
 ## X1 = X2 + X3 and X2 = X3 + X4
@@ -68,10 +71,10 @@ corrplot.mixed(cor(X), upper = "square")
 X = matrix(rnorm(n*p), ncol = p)
 X[,1] = X[,2] + X[,3] + rnorm(n, 0, 0.1)
 X[,2] = X[,3] + X[,4] + rnorm(n, 0, 0.1)
-
-ggplot_mcvis(mcvis(X))
-
+mcvis_result = mcvis(X)
+ggplot_mcvis(mcvis_result)
 corrplot.mixed(cor(X), upper = "square")
+corrplot.mixed(1 - mcvis_result$g, upper = "square")
 ```
 
 
@@ -91,6 +94,7 @@ mcvis_result = mcvis(X)
 ggplot_mcvis(mcvis_result, type = "max")
 ggplot_mcvis(mcvis_result, type = "first")
 corrplot.mixed(cor(X), upper = "square")
+corrplot.mixed(1 - mcvis_result$g, upper = "square")
 ```
 
 ## Rho = 0.99
@@ -105,6 +109,7 @@ mcvis_result = mcvis(X)
 ggplot_mcvis(mcvis_result, type = "max")
 ggplot_mcvis(mcvis_result, type = "first")
 corrplot.mixed(cor(X), upper = "square")
+corrplot.mixed(1 - mcvis_result$g, upper = "square")
 ```
 
 
