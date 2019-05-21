@@ -54,7 +54,7 @@ sim = function(n, gamma){
   rownames(taudf) = paste0("exp", 1:nExp)
   
   vifdf = t(vif1)
-  colnames(vifdf) = paste0("vif", 1:p)
+  colnames(vifdf) = paste0("vif", "(", 1:p, ")")
   rownames(vifdf) = paste0("exp", 1:nExp)
   
   taudf_long = reshape2::melt(taudf, varnames = c("exp_num", "tau_type"), value.name = "tau_value") %>% tibble::as_tibble()
@@ -66,7 +66,7 @@ sim = function(n, gamma){
   result = inner_join(taudf_nest, vifdf_nest, by = "exp_num") %>% 
     unnest(data.x, .drop = FALSE) %>% 
     unnest(data.y, .drop = FALSE)
-
+  
   return(result)
 }
 ```
@@ -81,13 +81,54 @@ tmp %>%
   ggplot(aes(x = tau_value, 
              y = vif_value)) +
   geom_point(shape = 1) +
-  facet_grid(vif_type ~ tau_type, scales = "free")
+  facet_grid(vif_type ~ tau_type, scales = "free") +
+  labs(x = "tau", 
+       y = "VIF")
 
 ```
 
 
 # Multiple simulations
 ```{r}
+plotdf_nest = expand.grid(
+  n = c(15, 100, 200), 
+  gamma = c(0, 0.5, 0.95)) %>% 
+  as_tibble() %>% 
+  dplyr::mutate(
+    sim_results = purrr::map2(
+      .x = n, .y = gamma, 
+      .f = ~sim(n = .x, gamma = .y))
+  )
 
+plotdf_nest
+
+plot_sim = function(data){
+  res = ggplot(data = data, 
+         aes(x = tau_value, 
+             y = vif_value)) +
+    geom_point(shape = 1) +
+    facet_grid(vif_type ~ tau_type, scales = "free") +
+    labs(x = "tau", y = "VIF")
+  return(res)
+}
+
+plotdf_plots = plotdf_nest %>% 
+  dplyr::mutate(
+    sim_plot = purrr::map(.x = sim_results, .f = plot_sim)
+  )
+
+purrr::map(
+  .x = seq_len(nrow(plotdf_plots)), 
+  .f = ~ ggsave(filename = paste0("figures/Fig1_n=", plotdf_plots$n[.x],
+                                  "_gamma=", plotdf_plots$gamma[.x], ".pdf"))
+)
+
+# plotdf_unnest = plotdf_nest %>% tidyr::unnest()
+# 
+# plotdf_unnest %>% 
+#   ggplot(aes(x = tau_value, 
+#              y = vif_value)) +
+#   geom_point(shape = 1, alpha = 0.1) +
+#   facet_grid(vif_type ~ tau_type, scales = "free")
 ```
 
