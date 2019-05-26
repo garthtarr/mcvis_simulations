@@ -102,28 +102,37 @@ plotdf_nest = expand.grid(
 
 plotdf_nest
 
-plot_sim = function(data){
+library(ggpubr)
+
+plot_sim = function(n, gamma, data){
   res = ggplot(data = data, 
          aes(x = tau_value, 
              y = vif_value)) +
     geom_point(shape = 1) +
+    stat_cor(aes(label = paste(..rr.label.., sep = "~`,`~")), colour = "red") +
     facet_grid(vif_type ~ tau_type, scales = "free") +
-    labs(x = "tau", y = "VIF")
+    labs(x = "tau", y = "VIF", 
+         title = paste0("n = ", n, ", ", expression(gamma), "=", gamma))
   return(res)
 }
 
+plot_sim(n = 15, gamma = 0, data = plotdf_nest$sim_results[[1]])
+
+
+
 plotdf_plots = plotdf_nest %>% 
   dplyr::mutate(
-    sim_plot = purrr::map(.x = sim_results, .f = plot_sim)
+    sim_plot = purrr::pmap(.l = list(data = sim_results, n = n, gamma = gamma), 
+                           .f = plot_sim)
   )
 
 purrr::map(
   .x = seq_len(nrow(plotdf_plots)), 
   .f = ~ ggsave(plot = plotdf_plots$sim_plot[[.x]], 
                 filename = paste0("figures/Fig1_n=", plotdf_plots$n[.x],
-                                  "_gamma=", plotdf_plots$gamma[.x], ".pdf"),
+                                  "_gamma=", str_replace(plotdf_plots$gamma[.x], "[.]", ""), ".png"),
                 height = 6,
-                width = 8)
+                width = 9)
 )
 
 # plotdf_unnest = plotdf_nest %>% tidyr::unnest()
