@@ -131,10 +131,10 @@ purrr::map(
   .f = ~ ggsave(plot = plotdf_plots$sim_plot[[.x]], 
                 filename = paste0("figures/Fig1_n=", plotdf_plots$n[.x],
                                   "_gamma=", str_replace(plotdf_plots$gamma[.x], "[.]", ""), ".png"),
-                height = 6,
-                width = 9)
-)
+                height = 5,
+                width = 8)
 
+)
 # plotdf_unnest = plotdf_nest %>% tidyr::unnest()
 # 
 # plotdf_unnest %>% 
@@ -142,5 +142,16 @@ purrr::map(
 #              y = vif_value)) +
 #   geom_point(shape = 1, alpha = 0.1) +
 #   facet_grid(vif_type ~ tau_type, scales = "free")
+```
+
+
+```{r}
+library(faraway)
+library(top)
+
+png(filename = "figures/mcvischeddar.png", width = 400, height = 400)
+pairs(cheddar, 
+      lower.panel = top::panel_cor)
+dev.off()
 ```
 
