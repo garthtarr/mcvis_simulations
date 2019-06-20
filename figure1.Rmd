@@ -50,7 +50,7 @@ sim = function(n, gamma){
   # )
   
   taudf = t(v1)
-  colnames(taudf) = paste0("tau", 1:p)
+  colnames(taudf) = paste0("tau",  "(", 1:p, ")")
   rownames(taudf) = paste0("exp", 1:nExp)
   
   vifdf = t(vif1)
@@ -132,7 +132,7 @@ purrr::map(
                 filename = paste0("figures/Fig1_n=", plotdf_plots$n[.x],
                                   "_gamma=", str_replace(plotdf_plots$gamma[.x], "[.]", ""), ".png"),
                 height = 5,
-                width = 8)
+                width = 9)
 
 )
 # plotdf_unnest = plotdf_nest %>% tidyr::unnest()
