@@ -50,7 +50,7 @@ sim = function(n, gamma){
   # )
   
   taudf = t(v1)
-  colnames(taudf) = paste0("tau",  "(", 1:p, ")")
+  colnames(taudf) = paste0("tau",  "(", p:1, ")")
   rownames(taudf) = paste0("exp", 1:nExp)
   
   vifdf = t(vif1)
