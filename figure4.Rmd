@@ -1,0 +1,30 @@
+---
+title: "Figure4"
+author: "Kevin Wang"
+date: "29/06/2019"
+output: html_document
+---
+
+```{r}
+library(mcvis)
+```
+
+
+```{r}
+library(mplot)
+
+set.seed(315)
+
+mcvis_mplot = mcvis::mcvis(mplot::artificialeg[,1:9])
+
+
+
+png(filename = "figures/mcvis_mplot.png", width = 350, height = 400)
+mcvis::igraph_mcvis(mcvis_mplot, eig.max = 1)
+dev.off()
+```
+
+```{r}
+sessionInfo()
+```
+

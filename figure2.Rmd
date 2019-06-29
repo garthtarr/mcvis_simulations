@@ -1,0 +1,46 @@
+---
+title: "Figure 2"
+author: "Kevin Wang"
+date: "29/06/2019"
+output: html_document
+---
+
+```{r}
+library(mcvis)
+```
+
+
+# Figure 2
+
+```{r}
+set.seed(315)
+
+n = 200
+gamma = 0.5
+v1 = vif1 = NULL
+nExp = 1000
+p = 4
+w = matrix(rnorm(p*n,10,100),n,p)
+x = sqrt(1-gamma^2)*w + gamma*w[,p]
+n1 = as.matrix(rep(1,n))
+X2 <- x-n1%*%colMeans(x)
+s <- as.matrix(sqrt(diag(t(X2) %*% X2)))
+x.norm <- as.matrix(sqrt(diag(t(x) %*% x)))
+Z <- X2[,1]/s[1,] 
+
+for (j in 2:p)   { Z<-as.matrix(cbind(Z,X2[,j]/s[j,])) } ## Standandardisation
+v<-as.vector(s/x.norm)
+D<-diag(v)
+Z1<-Z%*%D
+
+colnames(Z) = paste0("x", 1:p)
+png(file = "figures/sim_mcvis.png", width = 350, height = 400)
+mcvis::igraph_mcvis(mcvis::mcvis(X = Z))
+dev.off()
+```
+
+
+```{r}
+sessionInfo()
+```
+

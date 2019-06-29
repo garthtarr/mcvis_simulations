@@ -145,13 +145,8 @@ purrr::map(
 ```
 
 
+# SessionInfo
 ```{r}
-library(faraway)
-library(top)
-
-png(filename = "figures/mcvischeddar.png", width = 400, height = 400)
-pairs(cheddar, 
-      lower.panel = top::panel_cor)
-dev.off()
+sessionInfo()
 ```
 
