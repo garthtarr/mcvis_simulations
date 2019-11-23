@@ -18,30 +18,31 @@ theme_set(theme_classic(18) +
 
 ```{r}
 sim = function(n, gamma){
-  v1 = vif1 = NULL
   nExp = 1000
   p = 4
+  
+  taudf = matrix(0, nrow = nExp, ncol = p)
+  vifdf = matrix(0, nrow = nExp, ncol = p)
   
   for (l in 1:nExp){
     w = matrix(rnorm(p*n,10,100),n,p)
     x = sqrt(1-gamma^2)*w + gamma*w[,p]
-    n1 = as.matrix(rep(1,n))
-    X2 <- x-n1%*%colMeans(x)
-    s <- as.matrix(sqrt(diag(t(X2) %*% X2)))
-    x.norm <- as.matrix(sqrt(diag(t(x) %*% x)))
-    Z <- X2[,1]/s[1,] 
+    z = apply(x, 2, function(col){
+      # res = (col - mean(col))/sd(col)
+      tmp = col - mean(col)
+      res = tmp/sqrt(sum(tmp^2))
+      return(res)
+    })
+    apply(z, 2, mean)
+    apply(z, 2, var)
+    ztz_inv = solve(t(z) %*% z)
+    (vif = diag(ztz_inv))
+    svd_obj = svd(ztz_inv)
+    (taus = svd_obj$d)
+    (svd_obj$u^2 %*% taus) ## Equal to vif by theory
     
-    for (j in 2:p)   { Z<-as.matrix(cbind(Z,X2[,j]/s[j,])) } ## Standandardisation
-    
-    v<-as.vector(s/x.norm)
-    D<-diag(v)
-    Z1<-Z%*%D
-    v1p=1/eigen(crossprod(Z1,Z1))$values
-    vifp=diag(solve(t(Z1)%*%Z1))
-    vifp=vifp[order(vifp)]
-    
-    v1 <- cbind(v1,v1p)
-    vif1 <- cbind(vif1,vifp)
+    taudf[l,] = taus
+    vifdf[l,] = sort(vif)
   }
   
   # result = list(
@@ -49,12 +50,10 @@ sim = function(n, gamma){
   #   vif1 = vif1
   # )
   
-  taudf = t(v1)
-  colnames(taudf) = paste0("tau",  "(", p:1, ")")
+  colnames(taudf) = paste0("tau", 1:p)
   rownames(taudf) = paste0("exp", 1:nExp)
   
-  vifdf = t(vif1)
-  colnames(vifdf) = paste0("vif", "(", 1:p, ")")
+  colnames(vifdf) = paste0("vif", 1:p)
   rownames(vifdf) = paste0("exp", 1:nExp)
   
   taudf_long = reshape2::melt(taudf, varnames = c("exp_num", "tau_type"), value.name = "tau_value") %>% tibble::as_tibble()
@@ -75,7 +74,7 @@ sim = function(n, gamma){
 # Single simulation
 ```{r}
 set.seed(1)
-tmp = sim(n = 200, gamma = 0.5)
+tmp = sim(n = 200, gamma = 0)
 
 tmp %>% 
   ggplot(aes(x = tau_value, 
@@ -84,7 +83,6 @@ tmp %>%
   facet_grid(vif_type ~ tau_type, scales = "free") +
   labs(x = "tau", 
        y = "VIF")
-
 ```
 
 
