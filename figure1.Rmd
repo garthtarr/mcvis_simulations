@@ -28,9 +28,9 @@ sim = function(n, gamma){
     w = matrix(rnorm(p*n,10,100),n,p)
     x = sqrt(1-gamma^2)*w + gamma*w[,p]
     z = apply(x, 2, function(col){
-      # res = (col - mean(col))/sd(col)
-      tmp = col - mean(col)
-      res = tmp/sqrt(sum(tmp^2))
+      res = (col - mean(col))/sd(col)
+      # tmp = col - mean(col)
+      # res = tmp/sqrt(sum(tmp^2))
       return(res)
     })
     apply(z, 2, mean)
@@ -41,8 +41,11 @@ sim = function(n, gamma){
     (taus = svd_obj$d)
     (svd_obj$u^2 %*% taus) ## Equal to vif by theory
     
-    taudf[l,] = taus
-    vifdf[l,] = sort(vif)
+    
+    taudf[l,] = taus[p:1]
+    vifdf[l,] = vif    
+    # taudf[l,] = taus
+    # vifdf[l,] = sort(vif)
   }
   
   # result = list(
@@ -104,8 +107,8 @@ library(ggpubr)
 
 plot_sim = function(n, gamma, data){
   res = ggplot(data = data, 
-         aes(x = tau_value, 
-             y = vif_value)) +
+               aes(x = tau_value, 
+                   y = vif_value)) +
     geom_point(shape = 1) +
     stat_cor(aes(label = paste(..rr.label.., sep = "~`,`~")), colour = "red") +
     facet_grid(vif_type ~ tau_type, scales = "free") +
@@ -127,11 +130,11 @@ plotdf_plots = plotdf_nest %>%
 purrr::map(
   .x = seq_len(nrow(plotdf_plots)), 
   .f = ~ ggsave(plot = plotdf_plots$sim_plot[[.x]], 
-                filename = paste0("figures/Fig1_n=", plotdf_plots$n[.x],
+                filename = paste0("figures/var1_Fig1_n=", plotdf_plots$n[.x],
                                   "_gamma=", str_replace(plotdf_plots$gamma[.x], "[.]", ""), ".png"),
                 height = 5,
                 width = 9)
-
+  
 )
 # plotdf_unnest = plotdf_nest %>% tidyr::unnest()
 # 
