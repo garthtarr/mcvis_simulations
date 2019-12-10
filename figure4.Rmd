@@ -19,7 +19,7 @@ mcvis_mplot = mcvis::mcvis(mplot::artificialeg[,1:9])
 
 
 
-png(filename = "figures/mcvis_mplot.png", width = 350, height = 400)
+png(filename = "figures/Fig4.png", width = 350, height = 400)
 mcvis::igraph_mcvis(mcvis_mplot, eig.max = 1)
 dev.off()
 ```
