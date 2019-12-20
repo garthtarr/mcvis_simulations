@@ -3,21 +3,27 @@ title: "Figure 2"
 author: "Kevin Wang"
 date: "29/06/2019"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
 library(mcvis)
+library(faraway)
+library(CPOP)
 ```
 
 
 ```{r}
-library(faraway)
-library(CPOP)
+set.seed(31)
+# X = cbind(Int = 1, cheddar[,1:3])
+X = cheddar[,1:3]
 
-set.seed(315)
+mcvis_cheddar = mcvis::mcvis(
+  X = X, 
+  standardise_method = "studentise")
 
-mcvis_cheddar = mcvis::mcvis(cheddar[,1:3])
-
+mcvis_cheddar$MC
 
 png(filename = "figures/pairscheddar.png", width = 400, height = 400)
 pairs(cheddar, 

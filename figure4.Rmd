@@ -15,9 +15,11 @@ library(mplot)
 
 set.seed(315)
 
-mcvis_mplot = mcvis::mcvis(mplot::artificialeg[,1:9])
+mcvis_mplot = mcvis::mcvis(
+  mplot::artificialeg[,1:9],
+  standardise_method = "studentise")
 
-
+mcvis_mplot$MC
 
 png(filename = "figures/Fig4.png", width = 350, height = 400)
 mcvis::igraph_mcvis(mcvis_mplot, eig.max = 1)

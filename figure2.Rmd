@@ -30,7 +30,7 @@ z = apply(x, 2, function(col){
 apply(z, 2, mean)
 apply(z, 2, var)
 ztz_inv = solve(t(z) %*% z)
-(vif = diag(ztz_inv))
+(vif = (n-1) * diag(ztz_inv))
 svd_obj = svd(ztz_inv)
 (taus = svd_obj$d)
 (svd_obj$u^2 %*% taus) ## Equal to vif by theory

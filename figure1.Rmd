@@ -3,6 +3,8 @@ title: "Figure 1"
 author: "Kevin Wang"
 date: "21/05/2019"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
@@ -36,7 +38,7 @@ sim = function(n, gamma){
     apply(z, 2, mean)
     apply(z, 2, var)
     ztz_inv = solve(t(z) %*% z)
-    (vif = diag(ztz_inv))
+    (vif = (n-1) * diag(ztz_inv))
     svd_obj = svd(ztz_inv)
     (taus = svd_obj$d)
     (svd_obj$u^2 %*% taus) ## Equal to vif by theory
@@ -130,7 +132,7 @@ plotdf_plots = plotdf_nest %>%
 purrr::map(
   .x = seq_len(nrow(plotdf_plots)), 
   .f = ~ ggsave(plot = plotdf_plots$sim_plot[[.x]], 
-                filename = paste0("figures/var1_Fig1_n=", plotdf_plots$n[.x],
+                filename = paste0("figures/Fig1/Fig1_n=", plotdf_plots$n[.x],
                                   "_gamma=", str_replace(plotdf_plots$gamma[.x], "[.]", ""), ".png"),
                 height = 5,
                 width = 9)
