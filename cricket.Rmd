@@ -1,0 +1,102 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+clean_test_batting_career = readr::read_csv("./clean_test_batting_career.csv")
+
+set.seed(10)
+
+X = clean_test_batting_career %>% 
+  dplyr::mutate(hs_num = hs %>% stringr::str_extract("\\-*\\d+\\.*\\d*") %>% as.integer()) %>% 
+  # dplyr::select_if(is.numeric) %>% 
+  # dplyr::filter(career_end >= 2010) %>%
+  # dplyr::sample_n(size = 50) %>% 
+  na.omit() %>%
+  dplyr::transmute(
+    log_ave = log10(ave) %>% signif(2),
+    log_outs = log10(inns - not_out) %>% signif(2),
+    log_fours = log10(fours + 1L),
+    log_sixes = log10(sixes + 1L),
+    log_ducks = log10(ducks + 1L),
+    log_hs = log10(hs_num),
+    log_runs = log10(runs) %>% signif(2),
+    log_100 = log10(century + 1L)
+    ) %>% 
+  dplyr::select(log_runs, log_outs, log_ave, everything())
+  # dplyr::mutate_all(signif, 2)
+
+glimpse(X)
+```
+
+
+
+```{r}
+X %>% 
+  ggplot(aes(x = log_runs,
+             y = log_ave + log_outs)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, colour = "red")
+```
+
+```{r,fig.height=9,fig.width=9}
+library(ggcorrplot)
+ggcorrplot(cor(X), 
+          type = "upper",
+           outline.col = "white",
+          lab = TRUE, 
+          lab_size = 8, 
+          tl.cex = 20)
+```
+
+
+
+```{r}
+M1 = lm(log_100 ~ ., data = X)
+broom::tidy(M1)
+
+M2 = lm(log_100 ~ . -log_runs, data = X)
+M3 = lm(log_100 ~ . -log_ave, data = X)
+
+sjPlot::tab_model(M1, M2, M3,
+                  # show.intercept = FALSE, 
+                  show.ci = FALSE, 
+                  show.se = TRUE, 
+                  show.r2 = FALSE, 
+                  show.obs = FALSE,
+                  dv.labels = c("Include all", "Remove log_runs", "Remove log_ave"))
+```
+
+
+```{r}
+M1 = lm(log_100 ~ ., data = X)
+M1 %>% car::vif() %>% round(2)
+
+Xmat = X %>% as.data.frame() %>% as.matrix() %>% scale()
+eigen = svd(t(Xmat) %*% Xmat)
+round(eigen$d, 3)
+
+solve(eigen$u * eigen$u)[1:2,1:5]
+```
+
+
+
+```{r}
+library(mcvis)
+set.seed(13)
+p = ncol(X)
+mcvis_result = mcvis(X[,-p])
+round(mcvis_result$MC[p-1,], 2)
+```
+
+
+```{r}
+ggplot_mcvis(mcvis_result)
+```
+
