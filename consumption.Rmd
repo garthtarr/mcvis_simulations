@@ -1,0 +1,50 @@
+---
+title: "consumption"
+author: "Kevin Wang"
+date: "Jan 2020"
+output: html_document
+---
+
+```{r}
+library(perturb)
+library(tidyverse)
+library(ggcorrplot)
+library(car)
+library(mcvis)
+
+
+data(consumption)
+x = consumption
+glimpse(x)
+
+ggcorrplot(cor(x), 
+          type = "upper",
+           outline.col = "white",
+          lab = TRUE, 
+          lab_size = 8, 
+          tl.cex = 20)
+```
+
+
+# VIF
+```{r}
+vif(lm(year ~ ., data=x))
+```
+
+
+# mcvis
+
+```{r}
+mcvis_result = mcvis(X = x, standardise_method = "studentise")
+
+mcvis::igraph_mcvis(mcvis_result)
+
+mcvis::ggplot_mcvis(mcvis_result)
+```
+
+
+# Session info 
+```{r}
+sessionInfo()
+```
+
