@@ -26,19 +26,33 @@ ggcorrplot(cor(x),
 ```
 
 
+# Scatter plot 
+```{r}
+png(file = "figures/Fig5.png", width = 500, height = 500)
+pairs(consumption, lower.panel = CPOP::panel_cor)
+dev.off()
+```
+
+
 # VIF
 ```{r}
-vif(lm(year ~ ., data=x))
+vif(lm(cons ~ ., data=consumption))
 ```
 
 
 # mcvis
 
 ```{r}
-mcvis_result = mcvis(X = x, standardise_method = "studentise")
+set.seed(1)
+mcvis_result = mcvis(X = x[,-2], standardise_method = "studentise")
+mcvis_result$MC
+
+
+png(file = "figures/Fig3.png", width = 500, height = 400)
+mcvis::igraph_mcvis(mcvis_result)
+dev.off()
 
 mcvis::igraph_mcvis(mcvis_result)
-
 mcvis::ggplot_mcvis(mcvis_result)
 ```
 
