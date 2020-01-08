@@ -14,10 +14,14 @@ library(mcvis)
 
 
 data(consumption)
-x = consumption
-glimpse(x)
+X = consumption[,-1]
+year = X[,1]
+year = year[-28]
+X=cbind(X[-1,],year)
 
-ggcorrplot(cor(x), 
+glimpse(X)
+
+ggcorrplot(cor(X), 
           type = "upper",
            outline.col = "white",
           lab = TRUE, 
@@ -29,7 +33,7 @@ ggcorrplot(cor(x),
 # Scatter plot 
 ```{r}
 png(file = "figures/Fig5.png", width = 500, height = 500)
-pairs(consumption, lower.panel = CPOP::panel_cor)
+pairs(X, lower.panel = CPOP::panel_cor)
 dev.off()
 ```
 
@@ -44,7 +48,7 @@ vif(lm(cons ~ ., data=consumption))
 
 ```{r}
 set.seed(1)
-mcvis_result = mcvis(X = x[,-2], standardise_method = "studentise")
+mcvis_result = mcvis(X = X[,-1], standardise_method = "studentise")
 mcvis_result$MC
 
 
