@@ -115,7 +115,8 @@ plot_sim = function(n, gamma, data){
     stat_cor(aes(label = paste(..rr.label.., sep = "~`,`~")), colour = "red") +
     facet_grid(vif_type ~ tau_type, scales = "free") +
     labs(x = "tau", y = "VIF", 
-         title = paste0("n = ", n, ", ", expression(gamma), "=", gamma))
+         title = paste0("n = ", n, ", ", expression(gamma), "=", gamma)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
   return(res)
 }
 
