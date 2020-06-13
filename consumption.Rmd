@@ -14,10 +14,10 @@ library(mcvis)
 
 
 data(consumption)
-X = consumption[,-1]
-year = X[,1]
-year = year[-28]
-X=cbind(X[-1,],year)
+X=consumption[,-1] ## Remove year variable
+ct1 = X[,1] ## Get the consumption column
+ct1 = ct1[-28] ## Remove the last obs
+X=cbind(X[-1,],ct1) ## Add back the lagged consumption column
 
 glimpse(X)
 
@@ -40,7 +40,7 @@ dev.off()
 
 # VIF
 ```{r}
-vif(lm(cons ~ ., data=consumption))
+vif(lm(cons ~ ., data=X))
 ```
 
 
@@ -48,16 +48,16 @@ vif(lm(cons ~ ., data=consumption))
 
 ```{r}
 set.seed(1)
-mcvis_result = mcvis(X = X[,-1], standardise_method = "studentise")
-mcvis_result$MC
+mcvis_result = mcvis(X = X[, -which(colnames(X) == "cons")], standardise_method = "studentise") ## Remove consumption column in computing mcvis
+mcvis_result
 
 
 png(file = "figures/Fig3.png", width = 500, height = 400)
-mcvis::igraph_mcvis(mcvis_result)
+plot(mcvis_result)
 dev.off()
 
-mcvis::igraph_mcvis(mcvis_result)
-mcvis::ggplot_mcvis(mcvis_result)
+plot(mcvis_result)
+ggplot(mcvis_result)
 ```
 
 
