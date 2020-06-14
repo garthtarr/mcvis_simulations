@@ -47,16 +47,16 @@ vif(lm(cons ~ ., data=X))
 # mcvis
 
 ```{r}
-set.seed(1)
+set.seed(5)
 mcvis_result = mcvis(X = X[, -which(colnames(X) == "cons")], standardise_method = "studentise") ## Remove consumption column in computing mcvis
-mcvis_result
+mcvis_result$MC
 
 
 png(file = "figures/Fig3.png", width = 500, height = 400)
-plot(mcvis_result)
+plot(mcvis_result, eig.max = 4)
 dev.off()
 
-plot(mcvis_result)
+plot(mcvis_result, eig.max = 4)
 ggplot(mcvis_result)
 ```
 
