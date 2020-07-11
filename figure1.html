@@ -383,12 +383,12 @@ summary {
 
 
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.3.1     ✓ purrr   0.3.4
+<pre><code>## ── Attaching packages ───────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
 ## ✓ tibble  3.0.1     ✓ dplyr   1.0.0
 ## ✓ tidyr   1.1.0     ✓ stringr 1.4.0
 ## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ──────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>theme_set(theme_classic(18) +
@@ -489,17 +489,9 @@ plotdf_nest</code></pre>
 ## 7    15  0.95 &lt;tibble [16,000 × 5]&gt;
 ## 8   100  0.95 &lt;tibble [16,000 × 5]&gt;
 ## 9   200  0.95 &lt;tibble [16,000 × 5]&gt;</code></pre>
-<pre class="r"><code>library(ggpubr)</code></pre>
-<pre><code>## Loading required package: magrittr</code></pre>
-<pre><code>## 
-## Attaching package: &#39;magrittr&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     set_names</code></pre>
-<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
-## 
-##     extract</code></pre>
-<pre class="r"><code>plot_sim = function(n, gamma, data){
+<pre class="r"><code>library(ggpubr)
+
+plot_sim = function(n, gamma, data){
   res = ggplot(data = data, 
                aes(x = tau_value, 
                    y = vif_value)) +
@@ -524,7 +516,7 @@ purrr::map(
   .x = seq_len(nrow(plotdf_plots)), 
   .f = ~ ggsave(plot = plotdf_plots$sim_plot[[.x]], 
                 filename = paste0(&quot;figures/Fig1/Fig1_n=&quot;, plotdf_plots$n[.x],
-                                  &quot;_gamma=&quot;, str_replace(plotdf_plots$gamma[.x], &quot;[.]&quot;, &quot;&quot;), &quot;.png&quot;),
+                                  &quot;_gamma=&quot;, str_replace(plotdf_plots$gamma[.x], &quot;[.]&quot;, &quot;&quot;), &quot;.eps&quot;),
                 height = 5,
                 width = 9)
   
@@ -581,25 +573,28 @@ purrr::map(
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] ggpubr_0.2.5.999 magrittr_1.5     forcats_0.5.0    stringr_1.4.0   
-##  [5] dplyr_1.0.0      purrr_0.3.4      readr_1.3.1      tidyr_1.1.0     
-##  [9] tibble_3.0.1     ggplot2_3.3.1    tidyverse_1.3.0 
+##  [1] ggpubr_0.3.0    forcats_0.5.0   stringr_1.4.0   dplyr_1.0.0    
+##  [5] purrr_0.3.4     readr_1.3.1     tidyr_1.1.0     tibble_3.0.1   
+##  [9] ggplot2_3.3.2   tidyverse_1.3.0
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] tidyselect_1.1.0 xfun_0.13        reshape2_1.4.4   haven_2.2.0     
-##  [5] lattice_0.20-41  colorspace_1.4-1 vctrs_0.3.0      generics_0.0.2  
-##  [9] htmltools_0.4.0  yaml_2.2.1       utf8_1.1.4       rlang_0.4.6     
-## [13] pillar_1.4.4     glue_1.4.1       withr_2.2.0      DBI_1.1.0       
-## [17] dbplyr_1.4.2     modelr_0.1.6     readxl_1.3.1     plyr_1.8.6      
-## [21] lifecycle_0.2.0  ggsignif_0.6.0   munsell_0.5.0    gtable_0.3.0    
-## [25] cellranger_1.1.0 rvest_0.3.5      evaluate_0.14    labeling_0.3    
-## [29] knitr_1.28       fansi_0.4.1      broom_0.5.5      Rcpp_1.0.4.11   
-## [33] scales_1.1.1     backports_1.1.7  jsonlite_1.6.1   farver_2.0.3    
-## [37] fs_1.4.1         hms_0.5.3        digest_0.6.25    stringi_1.4.6   
-## [41] grid_3.6.2       cli_2.0.2        tools_3.6.2      crayon_1.3.4    
-## [45] pkgconfig_2.0.3  ellipsis_0.3.1   xml2_1.3.2       reprex_0.3.0    
-## [49] lubridate_1.7.8  assertthat_0.2.1 rmarkdown_2.1    httr_1.4.1      
-## [53] rstudioapi_0.11  R6_2.4.1         nlme_3.1-147     compiler_3.6.2</code></pre>
+##  [1] Rcpp_1.0.4.12     lubridate_1.7.9   lattice_0.20-41   assertthat_0.2.1 
+##  [5] digest_0.6.25     utf8_1.1.4        R6_2.4.1          cellranger_1.1.0 
+##  [9] plyr_1.8.6        backports_1.1.8   reprex_0.3.0      evaluate_0.14    
+## [13] httr_1.4.1        pillar_1.4.4      rlang_0.4.6       curl_4.3         
+## [17] readxl_1.3.1      data.table_1.12.8 rstudioapi_0.11   car_3.0-8        
+## [21] blob_1.2.1        rmarkdown_2.3.1   labeling_0.3      foreign_0.8-76   
+## [25] munsell_0.5.0     broom_0.5.6       compiler_3.6.2    modelr_0.1.8     
+## [29] xfun_0.15         pkgconfig_2.0.3   htmltools_0.5.0   tidyselect_1.1.0 
+## [33] rio_0.5.16        fansi_0.4.1       crayon_1.3.4      dbplyr_1.4.4     
+## [37] withr_2.2.0       grid_3.6.2        nlme_3.1-148      jsonlite_1.6.1   
+## [41] gtable_0.3.0      lifecycle_0.2.0   DBI_1.1.0         magrittr_1.5     
+## [45] scales_1.1.1      zip_2.0.4         carData_3.0-4     cli_2.0.2        
+## [49] stringi_1.4.6     farver_2.0.3      ggsignif_0.6.0    reshape2_1.4.4   
+## [53] fs_1.4.1          xml2_1.3.2        ellipsis_0.3.1    generics_0.0.2   
+## [57] vctrs_0.3.1       openxlsx_4.1.5    tools_3.6.2       glue_1.4.1       
+## [61] hms_0.5.3         abind_1.4-5       yaml_2.2.1        colorspace_1.4-1 
+## [65] rstatix_0.6.0     rvest_0.3.5       knitr_1.29        haven_2.3.1</code></pre>
 </div>
 
 

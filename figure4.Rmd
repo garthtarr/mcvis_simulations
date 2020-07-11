@@ -21,8 +21,9 @@ mcvis_mplot = mcvis::mcvis(
 
 mcvis_mplot$MC
 
-png(filename = "figures/Fig4.png", width = 350, height = 400)
-mcvis::igraph_mcvis(mcvis_mplot, eig.max = 1)
+setEPS()
+postscript("figures/Fig4.eps", fonts=c("serif", "Palatino"), width = 4.5, height = 4)
+plot(mcvis_mplot, eig.max = 1)
 dev.off()
 ```
 

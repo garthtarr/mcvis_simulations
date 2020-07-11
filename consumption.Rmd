@@ -31,8 +31,9 @@ ggcorrplot(cor(X),
 
 
 # Scatter plot 
-```{r}
-png(file = "figures/Fig5.png", width = 500, height = 500)
+```{r, fig.width = 6, fig.height = 6}
+setEPS()
+postscript("figures/Fig5.eps", width = 6, height = 6)
 pairs(X, lower.panel = CPOP::panel_cor)
 dev.off()
 ```
@@ -52,7 +53,8 @@ mcvis_result = mcvis(X = X[, -which(colnames(X) == "cons")], standardise_method 
 mcvis_result$MC
 
 
-png(file = "figures/Fig3.png", width = 500, height = 400)
+setEPS()
+postscript("figures/Fig3.eps", fonts=c("serif", "Palatino"), width = 4.5, height = 4)
 plot(mcvis_result, eig.max = 4)
 dev.off()
 

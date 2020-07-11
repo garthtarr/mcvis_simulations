@@ -134,7 +134,7 @@ purrr::map(
   .x = seq_len(nrow(plotdf_plots)), 
   .f = ~ ggsave(plot = plotdf_plots$sim_plot[[.x]], 
                 filename = paste0("figures/Fig1/Fig1_n=", plotdf_plots$n[.x],
-                                  "_gamma=", str_replace(plotdf_plots$gamma[.x], "[.]", ""), ".png"),
+                                  "_gamma=", str_replace(plotdf_plots$gamma[.x], "[.]", ""), ".eps"),
                 height = 5,
                 width = 9)
   

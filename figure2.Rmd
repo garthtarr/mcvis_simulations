@@ -38,8 +38,10 @@ svd_obj = svd(ztz_inv)
 
 
 colnames(z) = paste0("x", 1:p)
-png(file = "figures/Fig2.png", width = 350, height = 400)
-mcvis::igraph_mcvis(mcvis::mcvis(X = z))
+setEPS()
+postscript("figures/Fig2.eps", fonts=c("serif", "Palatino"), width = 4.5, height = 4)
+# pdf(file = "figures/Fig2.pdf", width = 4.5, height = 4)
+plot(mcvis::mcvis(X = z))
 dev.off()
 ```
 
