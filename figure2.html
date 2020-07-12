@@ -419,7 +419,7 @@ apply(z, 2, mean)</code></pre>
 setEPS()
 postscript(&quot;figures/Fig2.eps&quot;, fonts=c(&quot;serif&quot;, &quot;Palatino&quot;), width = 4.5, height = 4)
 # pdf(file = &quot;figures/Fig2.pdf&quot;, width = 4.5, height = 4)
-plot(mcvis::mcvis(X = z))
+plot(mcvis::mcvis(X = z), eig.max = 4, var.marx = 4)
 dev.off()</code></pre>
 <pre><code>## quartz_off_screen 
 ##                 2</code></pre>
@@ -442,11 +442,11 @@ dev.off()</code></pre>
 ## [1] mcvis_1.0.4
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.4.12    plyr_1.8.6       pillar_1.4.4     compiler_3.6.2  
+##  [1] Rcpp_1.0.5       plyr_1.8.6       pillar_1.4.6     compiler_3.6.2  
 ##  [5] later_1.1.0.1    tools_3.6.2      digest_0.6.25    nlme_3.1-148    
-##  [9] lattice_0.20-41  evaluate_0.14    lifecycle_0.2.0  tibble_3.0.1    
-## [13] gtable_0.3.0     pkgconfig_2.0.3  rlang_0.4.6      psych_1.9.12.31 
-## [17] igraph_1.2.5     shiny_1.4.0.2    parallel_3.6.2   yaml_2.2.1      
+##  [9] lattice_0.20-41  evaluate_0.14    lifecycle_0.2.0  tibble_3.0.3    
+## [13] gtable_0.3.0     pkgconfig_2.0.3  rlang_0.4.7      psych_1.9.12.31 
+## [17] igraph_1.2.5     shiny_1.5.0      parallel_3.6.2   yaml_2.2.1      
 ## [21] xfun_0.15        fastmap_1.0.1    stringr_1.4.0    dplyr_1.0.0     
 ## [25] knitr_1.29       generics_0.0.2   vctrs_0.3.1      grid_3.6.2      
 ## [29] tidyselect_1.1.0 glue_1.4.1       R6_2.4.1         rmarkdown_2.3.1 

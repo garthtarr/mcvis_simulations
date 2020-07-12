@@ -33,7 +33,7 @@ ggcorrplot(cor(X),
 # Scatter plot 
 ```{r, fig.width = 6, fig.height = 6}
 setEPS()
-postscript("figures/Fig5.eps", width = 6, height = 6)
+postscript("figures/Fig7.eps", width = 6, height = 6)
 pairs(X, lower.panel = CPOP::panel_cor)
 dev.off()
 ```
