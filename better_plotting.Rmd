@@ -1,0 +1,63 @@
+---
+title: "Better plotting"
+author: "Kevin Wang"
+date: "15/08/2020"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(mcvis)
+library(furrr)
+plan(multisession, workers = 5)
+
+theme_set(theme_bw(18) +
+            theme(legend.position = "bottom"))
+```
+
+
+# Setting up simulation grid
+```{r}
+p = 6
+n = 100
+
+grid = expand.grid(
+  epsilon = c(0.1, 1, 2, 3, 4, 100), 
+  exp_num = sprintf("exp_%03d", 1:50)) %>% 
+  as_tibble() %>% 
+  dplyr::mutate(
+    list_X = purrr::map(.x = epsilon,
+                        .f = function(e){
+                          if(e != 0){
+                            X = matrix(rnorm(n*p), ncol = p)
+                            X[,1] = X[,2] + X[,3] + rnorm(n, 0, e)
+                          } else {
+                            X = matrix(rnorm(n*p), ncol = p)
+                          }
+                          return(X)
+                        }),
+    mcvis_results = furrr::future_map(.x = list_X, .f = mcvis::mcvis, .progress = TRUE))
+```
+
+
+
+```{r}
+plotdf = grid %>% 
+  dplyr::transmute(
+    epsilon, exp_num, 
+    stats = purrr::map(mcvis_results, 
+                       .f = ~ SmokyScotch::v2df(.x$MC[p,] - 1/p, variable_name = "variable", value_name = "MC_normed") %>% 
+                         dplyr::mutate(t2 = .x$t_square[p,]))) %>% 
+  unnest(stats)
+```
+
+```{r}
+plotdf %>% 
+  ggplot(aes(x = variable, y = MC_normed)) +
+  geom_boxplot() +
+  geom_hline(yintercept = 0, colour = "red") +
+  facet_wrap(~epsilon, scales = "free_y", labeller = label_both)
+```
+
+
