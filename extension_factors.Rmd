@@ -1,0 +1,52 @@
+---
+title: "Better plotting"
+author: "Kevin Wang"
+date: "15/08/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r}
+library(tidyverse)
+library(mcvis)
+
+theme_set(theme_bw(18) +
+            theme(legend.position = "bottom"))
+```
+
+
+```{r}
+p = 6
+n = 100
+
+set.seed(124)
+X = matrix(sample(c(0,1), n*p, replace = TRUE), ncol = p)
+
+m = mcvis::mcvis(X)
+mcvis::alt_plot(m)
+```
+
+
+```{r, error = TRUE}
+Y = X
+Y[,2] = Y[,1] + sample(c(0, 1), n, prob = c(0.9, 0.1), replace = TRUE)
+Y[,2] = Y[,2] %% 2
+table(Y[,1], Y[,2])
+
+m2 = mcvis::mcvis(Y)
+mcvis::alt_plot(m2)
+```
+
+
+```{r, error = TRUE}
+Z = X
+Z[,3] = Z[,1] + sample(c(0, 1, 2), n, prob = c(0.8, 0.1, 0.1), replace = TRUE)
+# X[,3] = X[,1] %% 2
+table(Z[,1], Z[,3])
+
+m3 = mcvis::mcvis(Z)
+mcvis::alt_plot(m3)
+```
+

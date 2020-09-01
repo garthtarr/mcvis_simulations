@@ -3,6 +3,8 @@ title: "Better plotting"
 author: "Kevin Wang"
 date: "15/08/2020"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -23,21 +25,21 @@ p = 6
 n = 100
 
 grid = expand.grid(
-  epsilon = c(0.1, 1, 2, 3, 4, 100), 
+  epsilon = c(0.01, 0.1, 1, 2), 
   exp_num = sprintf("exp_%03d", 1:50)) %>% 
   as_tibble() %>% 
   dplyr::mutate(
     list_X = purrr::map(.x = epsilon,
                         .f = function(e){
                           if(e != 0){
-                            X = matrix(rnorm(n*p), ncol = p)
+                            X = matrix(1 + runif(n*p, 0, 0.01), ncol = p)
                             X[,1] = X[,2] + X[,3] + rnorm(n, 0, e)
                           } else {
-                            X = matrix(rnorm(n*p), ncol = p)
+                            X = matrix(1 + runif(n*p, 0, 0.01), ncol = p)
                           }
                           return(X)
                         }),
-    mcvis_results = furrr::future_map(.x = list_X, .f = mcvis::mcvis, .progress = TRUE))
+    mcvis_results = furrr::future_map(.x = list_X, .f = mcvis::mcvis))
 ```
 
 
