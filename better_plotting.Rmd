@@ -19,8 +19,8 @@ theme_set(theme_bw(18) +
 
 # Setting up simulation grid
 ```{r}
-p = 6
-n = 100
+p = 10
+n = 500
 
 grid = expand.grid(
   epsilon = c(0.1, 1, 2, 3, 4, 100), 
@@ -52,7 +52,7 @@ plotdf = grid %>%
   unnest(stats)
 ```
 
-```{r}
+```{r, fig.width = 15}
 library(ggcorrplot)
 
 grid %>% 
