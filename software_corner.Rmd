@@ -1,0 +1,93 @@
+---
+title: "mcvis: Multi-collinearity Visualisation"
+author: "Kevin Wang"
+date: "`r paste0('Initiated on 2020 Aug 22, compiled on ', format(Sys.time(), '%Y %b %d'))`"
+output:
+  html_document:
+    code_folding: show
+    fig_height: 6
+    fig_width: 6
+    toc: yes
+    number_sections: true
+    toc_depth: 3
+    toc_float: yes
+    theme: paper
+editor_options: 
+  chunk_output_type: console
+---
+
+# Introduction 
+What is the most fundamental/important model for a statistician? I think not many statisticians would overlook the linear regression model. Indeed, the linear regression model is both rich in theory and powerful in practice with many flexible extensions such as generalised linear model and linear mixed model. 
+
+But what about its assumptions? Classical textbooks tell us the main assumptions are on the model residuals should be indepedently and identically distributed. However, one practical assumption that we often encounter in real-world data is multicollinearity, which can cause the least squares regression to produce unreasonable estimates. 
+
+# Multicollinearity $\neq$ high correlation!
+So what is multicollinearity? Formally, it is defined as the phenomenon where a group of predictor variables are exactly or approximatedly linearly dependent. In other words, if one predictor variable can be expressed as a linear combination of other predictor variables, then we have a situation of multicollinearity. 
+
+**It is a common misconception that multicollinearity equals to high correlation between variables!** Consider the following example where we generate five predictor variables. First three variables are then manipulated via $X_1 = X_2 + X_3 + X_4$ with some random noise. Looking at the correlation matrix, we don't necessarily see anything alarmingly high with all values below 0.6. This might give us the false sense of security that no multicollinearity exist when in fact, the correlation of $X_1$ and the sum $X_2 + X_3 + X_4$ is approximately 0.998, enough to trigger an alert!
+
+```{r}
+set.seed(123)
+p = 5
+n = 50
+
+X = matrix(rnorm(n*p), ncol = p)
+X[,1] = X[,2] + X[,3] + X[,4] + rnorm(n, 0, 0.1)
+
+round(cor(X), 2)
+
+cor(X[,1], X[,2] + X[,3] + X[,4])
+```
+
+To make matters worse, if we blindly fit a linear regression model not knowing of the existence of multicollinearity, then we might even get an estimate on $X_1$ that is opposite in sign to how we generated our variable. 
+
+```{r}
+y = 1*X[,1] + rnorm(n)
+model = lm(y ~ X)
+summary(model)
+```
+
+# Classic ways of diagnosing multicollinearity
+
+By definition, multicollinearity appears when the model design matrix, $X$, is too close to being linearly dependent. One way to "diagnose" multicollinearity is to compute the eigenvalues of the matrix $X^\top X$ and examine the value $\sqrt{\lambda_{max}/\lambda_{min}}$, where $\lambda_{max}$ and $\lambda_{min}$ are the maximum eigenvalue and the minimum eigenvalue respectively. This is known as the "condition number" of the design matrix and the rule of thumb is a value larger than 30 indicates a severe case of multicollinearity. In our data example, we indeed have such a severe case of multicollinearity. 
+
+```{r}
+evalues = eigen(t(X) %*% X)$values
+sqrt(evalues[1]/evalues[p])
+```
+
+However, if we didn't simulate the data above and we obtained such a large condition number, how would we know which variables are the culprits? Knowning this information may help us to decide if any variables should be dropped or alternative modelling strategies might be needed (e.g. averaging these variables). 
+
+This is where `mcvis` can help!
+
+# Introducting `mcvis`
+
+`mcvis` is a new `R` package that computes a new statistic called the MC-index which can diagnose multicollinearity. The theory behind this MC-index is published in Lin et. al. (2020). Briefly, MC-index is a vector of length matching that of the number of columns of $X$. Each element of the MC-index vector connects $\tau  = \lambda_{min}$, which measures $X$'s proximity to linear dependence, with a regression predictor variable. A larger MC-index value indicates that a variable is causing more multicollinearity than another varible. ~~The computation of MC-index also uses a resampling scheme to stablise estimations.~~ The computation of the MC-index is through the `mcvis` function in the `mcvis` package. 
+
+```{r}
+library(mcvis)
+mcvis_result = mcvis(X)
+print(mcvis_result)
+```
+
+In the output above, we see that $X_1$ is identified as the main variable causing multicollinearity. We can further visualise this via a (bipartite) graph that shows this connection between $\tau$ and predictor variables. This plot gives us a quick indication of the sources of the collinearity. 
+
+```{r}
+plot(mcvis_result)
+```
+
+# Another example
+
+```{r}
+library(mplot)
+data(artificialeg)
+mcvis_result = mcvis(artificialeg[,-10])
+plot(mcvis_result)
+```
+
+
+# Session Info
+```{r}
+sessioninfo::session_info()
+```
+
