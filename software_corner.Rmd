@@ -1,6 +1,6 @@
 ---
 title: 'mcvis: Multi-collinearity Visualisation'
-author: "Kevin Wang"
+author: "Kevin Wang" # include Samuel too?
 date: "`r paste0('Initiated on 2020 Aug 22, compiled on ', format(Sys.time(), '%Y %b %d'))`"
 output:
   word_document:
@@ -8,6 +8,7 @@ output:
     toc_depth: '3'
     fig_height: 6
     fig_width: 10
+    reference_docx: "template.docx"
   html_document:
     code_folding: show
     fig_height: 6
@@ -35,28 +36,24 @@ So what is multicollinearity? Formally, it is defined as the phenomenon when a g
 
 ```{r}
 set.seed(123)
-p = 5
-n = 50
-
+p = 5; n = 50
 X = matrix(rnorm(n*p), ncol = p)
 X[,1] = X[,2] + X[,3] + X[,4] + rnorm(n, 0, 0.1)
-
 round(cor(X), 2)
-
 cor(X[,1], X[,2] + X[,3] + X[,4])
 ```
 
 If we blindly fit a linear regression model not knowing of the existence of multicollinearity, then two things can happen. One is with the coefficient estimate itself, where we can obtain an estimate of $\beta_1$ that is opposite in sign to how we generated our response variable. Another consequence is on the standard error of the coefficient estimate. Looking at the summary output of the "full model" (with all $p = 5$ predictors fitted), we see that the standard error of $\hat{\beta}_1$ is ten times larger than that of the "true model" with only $X_1$ fitted. 
 
 ```{r}
-y = 1*X[,1] + rnorm(n)
+y = 1 * X[,1] + rnorm(n)
 full_model = lm(y ~ X)
-summary(full_model)
+broom::tidy(full_model)
 ```
 
 ```{r}
 true_model = lm(y ~ X[,1])
-summary(true_model)
+broom::tidy(true_model)
 ```
 
 # Classic ways of diagnosing multicollinearity
@@ -67,26 +64,35 @@ One way to "diagnose" multicollinearity is to compute the eigenvalues of the mat
 
 ```{r}
 evalues = eigen(t(X) %*% X)$values
-condition_number = sqrt(evalues[1]/evalues[p])
-
-condition_number
+(condition_number = sqrt(evalues[1]/evalues[p]))
 ```
 
-However, if we didn't simulate the data above and we obtained such a large condition number, how would we know which variables are the culprits, i.e. variables that contribute the most to causing multicollinearity? Afterall, the condition number only tells us of the existence of multicollinearity, but not which predictors are causing this. Knowning this information may help us to decide if any variables should be dropped or alternative modelling strategies might be needed (e.g. averaging these variables). 
+However, if we didn't simulate the data above and we obtained such a large condition number, how would we know which variables are the culprits, i.e. variables that contribute the most to causing multicollinearity? 
+After all, the condition number only tells us of the existence of multicollinearity, but not which predictors are causing this. 
+Knowing this information may help us to decide if any variables should be dropped or alternative modelling strategies might be needed (e.g. averaging these variables). 
 
 This is where `mcvis` can help!
 
 # Introducting `mcvis`
 
-`mcvis` is a new `R` package that computes a new statistic called the MC-index which can diagnose multicollinearity. The theory behind this MC-index is published in Lin et. al. (2020). Briefly, MC-index is a vector of length matching that of the number of columns of $X$. Each element of the MC-index vector is a number between zero and one, connecting the number $\tau_p = \lambda_{min}$, which measures $X$'s proximity to linear dependence, with a regression predictor variable. A larger MC-index value indicates that a variable is causing more multicollinearity than another variable. The computation of the MC-index uses a bootstrap resampling scheme to stabilise estimations and the result can be performed through the `mcvis` function in the `mcvis` package. 
+The recently developed `mcvis` package computes a new statistic called the MC-index which can diagnose multicollinearity. 
+The theory behind this MC-index is published in Lin et. al. (2020). Briefly, MC-index is a vector of length matching that of the number of columns of $X$. 
+Each element of the MC-index vector is a number between zero and one, **connecting the number** [what does connecting the number mean? and tau_p = lambda_min?] $\tau_p = \lambda_{min}$, which measures $X$'s proximity to linear dependence, with a regression predictor variable. 
+A larger MC-index value indicates that a variable is causing more multicollinearity than another variable. 
+The computation of the MC-index uses a bootstrap resampling scheme to stabilise estimations. 
+The process is simple to implement through the `mcvis` function in the `mcvis` R package which is available on CRAN. 
 
 ```{r}
+# install.packages("mcvis")
 library(mcvis)
 mcvis_result = mcvis(X)
 print(mcvis_result)
 ```
 
-In the output above, we see that $X_1$, the first column of $X$, is identified as the main variable causing multicollinearity. We can further visualise this via a (bipartite) graph that shows this connection between $\tau_p$ and the $p$ predictor variables. The size and colour of the lines are categorised by the magnitude of the MC-index value. This plot gives us a quick indication of the sources of the multicollinearity, ordered by the magnitude. 
+In the output above, we see that $X_1$, the first column of $X$, is identified as the main variable causing multicollinearity. [Why? what is it about the table that indicates this? there are larger values in the X05 column for example. Or should we only look in the tau5 row?] 
+We can further visualise this via a (bipartite) graph that shows this connection between $\tau_p$ and the $p$ predictor variables. 
+The size and colour of the lines are categorised by the magnitude of the MC-index value. 
+This plot gives us a quick indication of the sources of the multicollinearity, ordered by the magnitude. [The thickness of the line represents magnitude?]
 
 ```{r}
 plot(mcvis_result)
@@ -96,23 +102,19 @@ plot(mcvis_result)
 
 We will illustrate the use of the `mcvis` package using a real example from the `dslabs` data package. The `brca` data contains various important biopsy features for breast cancer cell nuclei. The original data measures features such as the radius for a collection of cell nuclei in a tumour and summarises these into mean, standard error and the worst value. The response variable is a factor with two levels denoting whether a tumour is malignant ("M") or benign ("B"). To simplify interpretations, we will only focus on the first ten predictors, which correspond to the mean measurement of cell nuclei. 
 
-We do expect multicollinearity in this data because measures such as radius, perimeter and area of nucle should be highly correlated. Performing `mcvis` on this data, we do indeed see that this is the case and we will demonstrate that more than one group of variables are linearly highly correlated. We add some extra plotting parameters for `mcvis` to improve visibility.
+We do expect multicollinearity in this data because measures such as radius, perimeter and area of nucle[i?] should be highly correlated. Performing `mcvis` on this data, we do indeed see that this is the case and we will demonstrate that more than one group of variables are linearly highly correlated. We add some extra plotting parameters for `mcvis` to improve visibility.
 
 ```{r}
 library(dslabs)
 library(dplyr)
 library(ggcorrplot)
-
 data(brca)
-
-colnames(brca$x)
-
 x = as.data.frame(brca$x[,1:10])
+colnames(x)
 ```
 
 ```{r}
-## Some graphical summary of the data
-boxplot(x)
+boxplot(scale(x))
 ggcorrplot(cor(x), type = "upper", lab = TRUE)
 ```
 
@@ -125,9 +127,9 @@ The MC-index identifies two variables as having a "Strong" MC-index value. There
 
 ```{r}
 x2 = dplyr::select(x, -perimeter_mean, -area_mean)
-
-(mcvis_result2 = mcvis::mcvis(x2))
+mcvis_result2 = mcvis::mcvis(x2)
 plot(mcvis_result2, var_max = 5, label_dodge = TRUE)
+mcvis_result2$MC[,c(5,6)] %>% round(2)
 ```
 
 Repeating `mcvis` again, we can also find that `concave_pts_mean` and `concavity_mean` as another potential source of multicollinearity and as their definition are very similar according to the documentation, we may decide to remove one of these. 
@@ -138,15 +140,10 @@ Of course, depending on data context, we might not want to simply remove the col
 
 The linear regression model is arguably the most powerful tool in statistics. However, using it in practice may require extra checks and practical considerations with one often ignored issue being multicollinearity. `mcvis` is a tool that can help statisticians to identify different sources of multicollinearity to better decision making and the application of linear regression model. 
 
-
 # Reference 
 
 + Belsley, D. A., Kuh, E. & Welsch. R. E. Regression Diagnostics. Wiley Series in Probability and Statistics. John Wiley & Sons, Inc., 1980.
 
 + Lin, C., Wang, K. & Mueller, S. mcvis: A new framework for collinearity discovery, diagnostic and visualization. Journal of Computational and Graphical Statistics In Press, (2020). DOI: 10.1080/10618600.2020.1779729
 
-# Session Info
-```{r}
-sessioninfo::session_info()
-```
 
