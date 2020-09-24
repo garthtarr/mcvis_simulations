@@ -1,6 +1,6 @@
 ---
 title: 'mcvis: Multi-collinearity Visualisation'
-author: "Kevin Wang" # include Samuel too?
+author: "Kevin Wang & Samuel Mueller"
 date: "`r paste0('Initiated on 2020 Aug 22, compiled on ', format(Sys.time(), '%Y %b %d'))`"
 output:
   word_document:
@@ -83,16 +83,16 @@ The computation of the MC-index uses a bootstrap resampling scheme to stabilise 
 The process is simple to implement through the `mcvis` function in the `mcvis` R package which is available on CRAN. 
 
 ```{r}
-# install.packages("mcvis")
+# install.packages("mcvis") or remotes::install_github("kevinwang09/mcvis") for the development version
 library(mcvis)
 mcvis_result = mcvis(X)
 print(mcvis_result)
 ```
 
-In the output above, we see that $X_1$, the first column of $X$, is identified as the main variable causing multicollinearity. [Why? what is it about the table that indicates this? there are larger values in the X05 column for example. Or should we only look in the tau5 row?] 
+In the output above, we see that $X_1$ with the largest value of the MC-index, is identified as the main variable causing multicollinearity.
 We can further visualise this via a (bipartite) graph that shows this connection between $\tau_p$ and the $p$ predictor variables. 
 The size and colour of the lines are categorised by the magnitude of the MC-index value. 
-This plot gives us a quick indication of the sources of the multicollinearity, ordered by the magnitude. [The thickness of the line represents magnitude?]
+This plot gives us a quick indication of the sources of the multicollinearity, ordered by the magnitude.
 
 ```{r}
 plot(mcvis_result)
@@ -102,9 +102,9 @@ plot(mcvis_result)
 
 We will illustrate the use of the `mcvis` package using a real example from the `dslabs` data package. The `brca` data contains various important biopsy features for breast cancer cell nuclei. The original data measures features such as the radius for a collection of cell nuclei in a tumour and summarises these into mean, standard error and the worst value. The response variable is a factor with two levels denoting whether a tumour is malignant ("M") or benign ("B"). To simplify interpretations, we will only focus on the first ten predictors, which correspond to the mean measurement of cell nuclei. 
 
-We do expect multicollinearity in this data because measures such as radius, perimeter and area of nucle[i?] should be highly correlated. Performing `mcvis` on this data, we do indeed see that this is the case and we will demonstrate that more than one group of variables are linearly highly correlated. We add some extra plotting parameters for `mcvis` to improve visibility.
+We do expect multicollinearity in this data because measures such as radius, perimeter and area of nuclei should be highly correlated. Performing `mcvis` on this data, we do indeed see that this is the case and we will demonstrate that more than one group of variables are linearly highly correlated. We add some extra plotting parameters for `mcvis` to improve visibility.
 
-```{r}
+```{r, message=FALSE}
 library(dslabs)
 library(dplyr)
 library(ggcorrplot)
@@ -114,7 +114,6 @@ colnames(x)
 ```
 
 ```{r}
-boxplot(scale(x))
 ggcorrplot(cor(x), type = "upper", lab = TRUE)
 ```
 
@@ -127,9 +126,8 @@ The MC-index identifies two variables as having a "Strong" MC-index value. There
 
 ```{r}
 x2 = dplyr::select(x, -perimeter_mean, -area_mean)
-mcvis_result2 = mcvis::mcvis(x2)
+(mcvis_result2 = mcvis::mcvis(x2))	
 plot(mcvis_result2, var_max = 5, label_dodge = TRUE)
-mcvis_result2$MC[,c(5,6)] %>% round(2)
 ```
 
 Repeating `mcvis` again, we can also find that `concave_pts_mean` and `concavity_mean` as another potential source of multicollinearity and as their definition are very similar according to the documentation, we may decide to remove one of these. 
@@ -145,5 +143,3 @@ The linear regression model is arguably the most powerful tool in statistics. Ho
 + Belsley, D. A., Kuh, E. & Welsch. R. E. Regression Diagnostics. Wiley Series in Probability and Statistics. John Wiley & Sons, Inc., 1980.
 
 + Lin, C., Wang, K. & Mueller, S. mcvis: A new framework for collinearity discovery, diagnostic and visualization. Journal of Computational and Graphical Statistics In Press, (2020). DOI: 10.1080/10618600.2020.1779729
-
-
