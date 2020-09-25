@@ -43,7 +43,7 @@ round(cor(X), 2)
 cor(X[,1], X[,2] + X[,3] + X[,4])
 ```
 
-If we blindly fit a linear regression model not knowing of the existence of multicollinearity, then two things can happen. One is with the coefficient estimate itself, where we can obtain an estimate of $\beta_1$ that is opposite in sign to how we generated our response variable. Another consequence is on the standard error of the coefficient estimate. Looking at the summary output of the "full model" (with all $p = 5$ predictors fitted), we see that the standard error of $\hat{\beta}_1$ is ten times larger than that of the "true model" with only $X_1$ fitted. 
+If we blindly fit a linear regression model not knowing of the existence of multicollinearity, then two things can happen. One is with the regression coefficient estimate itself, where we can obtain an estimate of $\beta_1$, the slope parameter corresponding to the first regressor $X_1$, that is opposite in sign to how we generated our response variable, $y$. Another consequence is on the standard error of the coefficient estimate. Looking at the summary output of the "full model" (with all $p = 5$ predictors fitted), we see that the standard error of $\hat{\beta}_1$ is ten times larger than that of the "true model" with only $X_1$ fitted. 
 
 ```{r}
 y = 1 * X[,1] + rnorm(n)
@@ -58,7 +58,7 @@ broom::tidy(true_model)
 
 # Classic ways of diagnosing multicollinearity
 
-So why do these strange phenomena occur? In least squares regression, both the estimator and its variance depend on the precision matrix $(X^\top X)^{-1}$. However, when the model design matrix, $X$, is numerically "close" to having linearly dependent columns, as we do have when multicollinearity occurs, the matrix $X^\top X$ is not numerically invertible. Hence, elements of the precision matrix, regression estimators and standard errors start to behave erratically from a numeric perspective. 
+So why do these strange phenomena occur? In least squares regression, both the estimator and its variance depend on the precision matrix $(X^\top X)^{-1}$, where each column $X_j$ of $X$ represents an explanatory variable $X_j$, $j = 0, \dots, p$ if the linear regression model includes an intercept term, and $j = 1, \dots, p$ otherwise. However, when the model design matrix, $X$, is numerically "close" to having linearly dependent columns, as we do have when multicollinearity occurs, the matrix $X^\top X$ is not numerically invertible. Hence, elements of the precision matrix, regression estimators and standard errors start to behave erratically from a numeric perspective. 
 
 One way to "diagnose" multicollinearity is to compute the eigenvalues of the matrix $X^\top X$ and examine the value $\sqrt{\lambda_{max}/\lambda_{min}}$, where $\lambda_{max}$ and $\lambda_{min}$ are the maximum eigenvalue and the minimum eigenvalue, respectively. This ratio is known as the "condition number" of the design matrix and a rule of thumb is that if a condition number is larger than 30, then this indicates a severe case of multicollinearity (see e.g. Belsley et al. (1980, Section 3.2)). In our data example, we do indeed have such a severe case of multicollinearity. 
 
@@ -67,7 +67,7 @@ evalues = eigen(t(X) %*% X)$values
 (condition_number = sqrt(evalues[1]/evalues[p]))
 ```
 
-However, if we didn't simulate the data above and we obtained such a large condition number, how would we know which variables are the culprits, i.e. variables that contribute the most to causing multicollinearity? 
+However, if we didn't simulate the data above and we obtained such a large condition number, how would we know which variables are contributing the most to cause multicollinearity? 
 After all, the condition number only tells us of the existence of multicollinearity, but not which predictors are causing this. 
 Knowing this information may help us to decide if any variables should be dropped or alternative modelling strategies might be needed (e.g. averaging these variables). 
 
@@ -77,7 +77,7 @@ This is where `mcvis` can help!
 
 The recently developed `mcvis` package computes a new statistic called the MC-index which can diagnose multicollinearity. 
 The theory behind this MC-index is published in Lin et. al. (2020). Briefly, MC-index is a vector of length matching that of the number of columns of $X$. 
-Each element of the MC-index vector is a number between zero and one, **connecting the number** [what does connecting the number mean? and tau_p = lambda_min?] $\tau_p = \lambda_{min}$, which measures $X$'s proximity to linear dependence, with a regression predictor variable. 
+Each element of the MC-index vector is a number between zero and one, connecting the $i$th MC-index with the smallest eigenvalue, $\tau_p = \lambda_{min}$, which measures $X$'s proximity to linear dependence, with the $i$th regression predictor variable. 
 A larger MC-index value indicates that a variable is causing more multicollinearity than another variable. 
 The computation of the MC-index uses a bootstrap resampling scheme to stabilise estimations. 
 The process is simple to implement through the `mcvis` function in the `mcvis` R package which is available on CRAN. 
@@ -132,11 +132,11 @@ plot(mcvis_result2, var_max = 5, label_dodge = TRUE)
 
 Repeating `mcvis` again, we can also find that `concave_pts_mean` and `concavity_mean` as another potential source of multicollinearity and as their definition are very similar according to the documentation, we may decide to remove one of these. 
 
-Of course, depending on data context, we might not want to simply remove the collinear variables like we have done here. Some common alternatives include averaging collinear predictors or using models that can decorrelate the predictor variables (e.g. random forest). Nonetheless, the diagnosis of multicollinearity is an important part of choosing which modelling strategy one should take. 
+Of course, depending on data context, we might not want to simply remove the collinearity causing variables as we have done here. Some common alternatives include averaging collinear predictors or using models that can decorrelate the predictor variables (e.g. random forest). Nonetheless, the diagnosis of multicollinearity is an important part of choosing which modelling strategy one should take. 
 
 # Conclusion 
 
-The linear regression model is arguably the most powerful tool in statistics. However, using it in practice may require extra checks and practical considerations with one often ignored issue being multicollinearity. `mcvis` is a tool that can help statisticians to identify different sources of multicollinearity to better decision making and the application of linear regression model. 
+The linear regression model is arguably the most powerful tool in statistics. However, using it in practice may require extra checks and practical considerations with one often ignored issue being multicollinearity. The `R` package `mcvis` provides tools that can help statisticians to identify different sources of multicollinearity to better decision making and the application of linear regression model. 
 
 # Reference 
 
